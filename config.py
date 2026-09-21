@@ -5,157 +5,161 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
 DATABASE_PATH = os.getenv(
     "DATABASE_PATH",
-    "data/autotrasporti_meloni.db"
+    "data/autotrasporti.db"
 )
 
-REQUEST_TIMEOUT = int(os.getenv("REQUEST_TIMEOUT", "25"))
+REQUEST_TIMEOUT = int(os.getenv("REQUEST_TIMEOUT", "20"))
 
-# Numero massimo di risultati mostrati da Telegram
-MAX_RESULTS = int(os.getenv("MAX_RESULTS", "15"))
+MIN_RELEVANCE_SCORE = int(
+    os.getenv("MIN_RELEVANCE_SCORE", "35")
+)
 
-# Sardegna
-REGION_KEYWORDS = [
-    "sardegna",
-    "sardegnaimpresa",
-    "regione sardegna",
-    "buras",
-    "cagliari",
-    "sassari",
-    "nuoro",
-    "oristano",
-    "olbia",
-    "tempio",
-    "arborea",
-    "porto torres",
-]
+KEYWORDS = {
+    "autotrasporto": [
+        "autotrasporto",
+        "trasporto merci",
+        "trasportatore",
+        "conto terzi",
+        "conto proprio",
+        "camion",
+        "autocarro",
+        "rimorchio",
+        "semirimorchio",
+        "flotta"
+    ],
 
-# Settore
-TRANSPORT_KEYWORDS = [
-    "autotrasporto",
-    "autotrasporti",
-    "trasporto merci",
-    "trasportatore",
-    "trasportatori",
-    "conto terzi",
-    "conto proprio",
-    "logistica",
-    "camion",
-    "autocarro",
-    "autocarri",
-    "rimorchio",
-    "semirimorchio",
-    "flotta",
-    "parco veicoli",
-    "parco mezzi",
-    "veicoli commerciali",
-]
+    "gasolio": [
+        "gasolio",
+        "carburante",
+        "diesel",
+        "accisa",
+        "credito carburante",
+        "rimborso accise",
+        "carburanti",
+        "hvo"
+    ],
 
-# Attività/artigianato
-ARTISAN_KEYWORDS = [
-    "artigian",
-    "impresa artigiana",
-    "artigiani",
-    "microimpresa",
-    "micro impresa",
-    "piccola impresa",
-    "pmi",
-]
+    "mezzi": [
+        "rinnovo parco",
+        "veicoli",
+        "mezzi pesanti",
+        "autocarri",
+        "euro vi",
+        "euro 6",
+        "ecobonus",
+        "rottamazione"
+    ],
 
-# Mezzi
-VEHICLE_KEYWORDS = [
-    "camion",
-    "autocarro",
-    "rimorchio",
-    "semirimorchio",
-    "veicolo commerciale",
-    "veicoli commerciali",
-    "n1",
-    "n2",
-    "n3",
-    "euro vi",
-    "euro v",
-    "rinnovo parco",
-    "rottamazione",
-]
+    "rimessa": [
+        "rimessa",
+        "deposito",
+        "garage",
+        "piazzale",
+        "area di sosta",
+        "capannone",
+        "immobile",
+        "terreno"
+    ],
 
-# Carburanti
-FUEL_KEYWORDS = [
-    "gasolio",
-    "diesel",
-    "carburante",
-    "accisa",
-    "accise",
-    "credito carburante",
-    "rimborso carburante",
-    "hvo",
-    "biocarburante",
-]
+    "officina": [
+        "officina",
+        "attrezzature",
+        "macchinari",
+        "impianti",
+        "beni strumentali",
+        "nuova sabatini"
+    ],
 
-# Immobili e infrastrutture
-PROPERTY_KEYWORDS = [
-    "capannone",
-    "immobile",
-    "fabbricato",
-    "deposito",
-    "garage",
-    "rimessa",
-    "piazzale",
-    "area",
-    "terreno",
-    "officina",
-]
+    "energia": [
+        "energia",
+        "fotovoltaico",
+        "autoconsumo",
+        "batterie",
+        "accumulo",
+        "efficientamento energetico",
+        "colonnine",
+        "ricarica"
+    ],
 
-# Energia
-ENERGY_KEYWORDS = [
-    "fotovoltaico",
-    "fotovoltaica",
-    "energia",
-    "risparmio energetico",
-    "efficienza energetica",
-    "batterie",
-    "accumulo",
-    "colonnina",
-    "ricarica",
-    "elettrico",
-]
+    "formazione": [
+        "formazione",
+        "patente",
+        "cqc",
+        "sicurezza",
+        "autisti",
+        "lavoratori",
+        "formazione professionale"
+    ],
 
-# Formazione e personale
-PEOPLE_KEYWORDS = [
-    "formazione",
-    "formativo",
-    "corso",
-    "lavoratori",
-    "dipendenti",
-    "assunzione",
-    "assunzioni",
-    "occupazione",
-    "sicurezza",
-]
+    "lavoro": [
+        "assunzione",
+        "occupazione",
+        "incentivo assunzione",
+        "contributo assunzioni",
+        "apprendistato"
+    ],
 
-# Finanza
-FINANCE_KEYWORDS = [
+    "artigianato": [
+        "artigianato",
+        "impresa artigiana",
+        "artigiano",
+        "artigiane",
+        "confartigianato",
+        "cna"
+    ],
+
+    "sardegna": [
+        "sardegna",
+        "regione sardegna",
+        "sardegnaimpresa",
+        "sipes",
+        "buras",
+        "cagliari",
+        "oristano",
+        "sassari",
+        "nuoro",
+        "sud sardegna"
+    ],
+
+    "finanza": [
+        "contributo",
+        "incentivo",
+        "agevolazione",
+        "finanziamento",
+        "credito d'imposta",
+        "credito imposta",
+        "fondo perduto",
+        "garanzia",
+        "bando",
+        "voucher"
+    ],
+
+    "logistica": [
+        "porto",
+        "porti",
+        "intermodale",
+        "logistica",
+        "autostrada del mare",
+        "trasporto combinato",
+        "toll",
+        "pedaggio"
+    ]
+}
+
+IMPORTANT_WORDS = [
+    "apertura",
+    "aperto",
+    "domande",
+    "scadenza",
+    "proroga",
+    "rifinanziamento",
+    "nuova misura",
+    "nuovo bando",
+    "modifica",
+    "decreto",
+    "circolare",
     "contributo",
-    "contributi",
     "incentivo",
-    "incentivi",
-    "agevolazione",
-    "agevolazioni",
-    "finanziamento",
-    "finanziamenti",
-    "credito d'imposta",
-    "credito di imposta",
-    "rimborso",
-    "fondo perduto",
-    "garanzia",
-    "leasing",
-    "voucher",
-    "sovvenzione",
-]
-
-# Parole che indicano potenziale irrilevanza
-EXCLUDE_KEYWORDS = [
-    "agricoltura",
-    "pesca",
-    "turismo",
-    "edilizia",
+    "credito",
+    "rimborso"
 ]
