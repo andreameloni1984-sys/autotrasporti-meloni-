@@ -16,7 +16,20 @@ jobs:
       - name: Install
         run: pip install -r requirements.txt
 
-      - name: Scan
+      - name: Test Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          from alerts import send_message
+          ok = send_message("🚛 AUTOTRASPORTI MELONI — collegamento Telegram OK.")
+          print("Telegram test:", ok)
+          if not ok:
+              raise SystemExit("Telegram non raggiungibile: controlla TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID.")
+          PY
+
+      - name: Scan and alerts
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
