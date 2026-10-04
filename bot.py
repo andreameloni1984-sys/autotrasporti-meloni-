@@ -1,4 +1,7 @@
 import os
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
 from database import init_db, get_latest, get_unnotified
 from scanner import run_scan
 from alerts import send_unnotified
@@ -147,10 +150,28 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     await query.edit_message_text(text, reply_markup=menu_markup())
 
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.end_headers()
+        self.wfile.write(b"Autotrasporti Meloni bot OK")
+    def log_message(self, format, *args):
+        return
+
+def start_health_server():
+    port = int(os.getenv("PORT", "10000"))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
+    print(f"Health server listening on 0.0.0.0:{port}")
+    server.serve_forever()
+
 def main():
     init_db()
     if not TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN non configurato.")
+
+    threading.Thread(target=start_health_server, daemon=True).start()
+
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("menu", menu))
