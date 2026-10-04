@@ -6,24 +6,44 @@ from database import get_latest
 MODEL = os.getenv("OPENAI_MODEL", "gpt-5.6-luna")
 
 SYSTEM = """Sei l'assistente AI di AUTOTRASPORTI MELONI, specializzato in autotrasporto e imprese artigiane in Sardegna e Italia.
-Rispondi in italiano, in modo pratico e chiaro.
-Puoi aiutare su incentivi, contributi, rimborsi, gasolio/accise, mezzi, rinnovo flotta,
-rimorchi, officina, capannoni/rimesse, energia, formazione, lavoro, pedaggi, porti,
-logistica, adempimenti e normativa.
-Non inventare requisiti, importi o scadenze.
-Distingui sempre tra archivio interno, informazioni ufficialmente verificate e semplice segnalazione.
-Per questioni fiscali o legali importanti invita a verificare la fonte ufficiale o il professionista.
+
+Quando l'utente chiede "ci sono novità?", "novità", "cosa c'è di nuovo?", "aggiornamenti",
+"che novità ci sono?" o una richiesta equivalente, DEVI fare una ricerca web completa e
+aggiornata e fornire una vera ANALISI COMPLETA per AUTOTRASPORTI MELONI.
+
+L'analisi deve coprire, quando pertinenti:
+- incentivi, contributi, bandi e finanziamenti;
+- gasolio, accise, rimborsi e carburanti;
+- camion, rimorchi, rinnovo flotta ed ecobonus;
+- rimesse, piazzali, capannoni, terreni;
+- officina, macchinari e Nuova Sabatini;
+- energia, fotovoltaico e accumulo;
+- formazione, CQC, autisti, assunzioni;
+- pedaggi, porti, logistica e collegamenti Sardegna-continente;
+- normativa e adempimenti;
+- misure Regione Sardegna, Stato e UE rilevanti per l'impresa.
+
+Distingui chiaramente:
+🟢 NUOVO/APPLICABILE
+🟡 DA VERIFICARE
+🔴 CHIUSO/SCADUTO
+Per ogni opportunità importante indica cosa significa concretamente per l'azienda,
+beneficio, requisiti essenziali, scadenza e fonte ufficiale quando disponibili.
+Non inventare importi, requisiti o scadenze.
+
+Per le domande normali NON fare ricerche web automaticamente: usa conoscenza generale
+e archivio interno. Se l'utente vuole una verifica aggiornata può chiedere "ci sono novità?"
+o "verifica".
 """
 
-SEARCH_WORDS = [
-    "cerca", "ricerca", "cercami", "verifica", "controlla", "controllami",
-    "aggiorna", "aggiornami", "novità", "novita", "ultime", "attuale",
-    "oggi", "adesso", "recenti", "recente", "bando aperto", "scadenza",
-    "quanto è", "quanto e", "è ancora aperto", "e ancora aperto",
+SEARCH_TRIGGERS = [
+    "ci sono novità", "ci sono novita", "novità", "novita",
+    "cosa c'è di nuovo", "cosa ce di nuovo", "che novità ci sono",
+    "che novita ci sono", "aggiornamenti", "ultime novità", "ultime novita",
 ]
 
 def _archive_context():
-    rows = get_latest(15)
+    rows = get_latest(20)
     if not rows:
         return "Archivio interno: nessun dato disponibile."
     chunks = []
@@ -37,7 +57,7 @@ def _archive_context():
 
 def _wants_search(question):
     q = re.sub(r"\s+", " ", question.lower()).strip()
-    return any(word in q for word in SEARCH_WORDS)
+    return any(trigger in q for trigger in SEARCH_TRIGGERS)
 
 def answer(question):
     api_key = os.getenv("OPENAI_API_KEY", "")
@@ -52,12 +72,12 @@ def answer(question):
         + "\n\n"
         + _archive_context()
         + "\n\n"
-        + ("MODALITÀ RICERCA: l'utente ha chiesto esplicitamente una ricerca/verifica. "
-           "Usa il web e privilegia fonti ufficiali e aggiornate.\n"
+        + ("RICERCA COMPLETA RICHIESTA: cerca sul web informazioni aggiornate e pertinenti. "
+           "Privilegia fonti ufficiali (Regione Sardegna, MIT, Agenzia Entrate, ADM, INPS, "
+           "MIMIT, MASE, Gazzetta Ufficiale, CCIAA e fonti istituzionali). Confronta le fonti "
+           "e non limitarti ai primi risultati. Produci un'analisi completa e pratica.\n"
            if search_requested else
-           "MODALITÀ RISPOSTA: NON fare ricerche web. Rispondi usando conoscenza generale "
-           "e archivio interno. Se servono dati aggiornati, chiedi all'utente di dire "
-           "«cerca» o «verifica».\n")
+           "NESSUNA RICERCA WEB: rispondi solo con conoscenza generale e archivio interno.\n")
         + "\nDomanda dell'utente:\n"
         + question
     )
