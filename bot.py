@@ -2,7 +2,8 @@ import os
 from database import init_db, get_latest, get_unnotified, get_by_category
 from scanner import run_scan
 from alerts import send_unnotified
-from ai_assistant import answer\nfrom config import CATEGORY_LABELS
+from ai_assistant import answer
+from config import CATEGORY_LABELS
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -154,21 +155,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         return
     await query.edit_message_text(text, reply_markup=menu_markup())
-
-class HealthHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-Type", "text/plain; charset=utf-8")
-        self.end_headers()
-        self.wfile.write(b"Autotrasporti Meloni bot OK")
-    def log_message(self, format, *args):
-        return
-
-def start_health_server():
-    port = int(os.getenv("PORT", "10000"))
-    server = HTTPServer(("0.0.0.0", port), HealthHandler)
-    print(f"Health server listening on 0.0.0.0:{port}")
-    server.serve_forever()
 
 def main():
     init_db()
