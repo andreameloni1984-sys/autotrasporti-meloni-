@@ -1,8 +1,8 @@
 import os
-from database import init_db, get_latest, get_unnotified
+from database import init_db, get_latest, get_unnotified, get_by_category
 from scanner import run_scan
 from alerts import send_unnotified
-from ai_assistant import answer
+from ai_assistant import answer\nfrom config import CATEGORY_LABELS
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -27,13 +27,16 @@ HELP = (
 )
 
 def menu_markup():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🆕 Nuove", callback_data="nuovi"),
-         InlineKeyboardButton("📋 Ultime", callback_data="ultime")],
-        [InlineKeyboardButton("⏰ Scadenze", callback_data="scadenze"),
-         InlineKeyboardButton("🔄 Aggiorna", callback_data="aggiorna")],
-        [InlineKeyboardButton("ℹ️ Guida", callback_data="help")],
-    ])
+    keys=[("news","📰 News"),("contributi","💶 Contributi"),("incentivi","🎯 Incentivi"),("bandi","📋 Bandi"),
+          ("finanziamenti","🏦 Finanziamenti"),("gasolio","⛽ Gasolio"),("mezzi","🚚 Mezzi"),("immobili","🏗️ Immobili"),
+          ("energia","⚡ Energia"),("normative","⚖️ Normative"),("sardegna","🏝️ Sardegna"),("scadenze","⏰ Scadenze")]
+    rows=[]
+    for i in range(0,len(keys),2):
+        rows.append([InlineKeyboardButton(keys[i][1],callback_data="cat:"+keys[i][0]),
+                     InlineKeyboardButton(keys[i+1][1],callback_data="cat:"+keys[i+1][0])])
+    rows.append([InlineKeyboardButton("🆕 Nuove",callback_data="nuovi"),InlineKeyboardButton("📋 Ultime",callback_data="ultime")])
+    rows.append([InlineKeyboardButton("🔄 Aggiorna",callback_data="aggiorna"),InlineKeyboardButton("ℹ️ Guida",callback_data="help")])
+    return InlineKeyboardMarkup(rows)
 
 def format_row(row):
     title, url, source, categories, score, deadline, status, benefit = row
@@ -121,7 +124,12 @@ async def question(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    if query.data == "nuovi":
+    if query.data.startswith("cat:"):
+        category=query.data.split(":",1)[1]
+        rows=get_by_category(category,10)
+        label=CATEGORY_LABELS.get(category,category.upper())
+        text=(f"{label}\n\n" + "\n\n".join(format_row(r) for r in rows)) if rows else f"{label}\n\nNessun elemento in questa categoria."
+    elif query.data == "nuovi":
         rows = get_unnotified()
         text = "🆕 NUOVE OPPORTUNITÀ\n\n" + "\n\n".join(
             format_unnotified(r) for r in rows[:10]) if rows else "🆕 Nessuna nuova opportunità."
