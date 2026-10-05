@@ -146,6 +146,36 @@ KEYWORDS = {
     ]
 }
 
+MAIN_CATEGORIES = {
+    "news": ["articolo", "articoli", "news", "notizia", "notizie", "novità", "aggiornamento"],
+    "contributi": ["contributo", "contributi", "fondo perduto", "contributo a fondo perduto"],
+    "incentivi": ["incentivo", "incentivi", "agevolazione", "agevolazioni", "ecobonus", "bonus"],
+    "bandi": ["bando", "bandi", "avviso", "avvisi", "domande", "sportello"],
+    "finanziamenti": ["finanziamento", "finanziamenti", "finanziamento agevolato", "fondo di garanzia", "sabatini", "leasing"],
+    "gasolio": ["gasolio", "diesel", "carburante", "carburanti", "accisa", "accise", "hvo", "rimborso carburante"],
+    "mezzi": ["camion", "autocarro", "autocarri", "rimorchio", "semirimorchio", "veicoli", "flotta", "parco veicolare", "rottamazione"],
+    "immobili": ["rimessa", "deposito", "garage", "piazzale", "capannone", "capannoni", "immobile", "terreno"],
+    "energia": ["energia", "fotovoltaico", "autoconsumo", "batterie", "accumulo", "efficientamento", "colonnine", "ricarica"],
+    "normative": ["normativa", "normative", "legge", "decreto", "decreti", "circolare", "circolari", "obbligo", "obblighi"],
+    "sardegna": ["sardegna", "regione sardegna", "buras", "sardegnaimpresa", "sipes"],
+    "scadenze": ["scadenza", "scadenze", "chiusura", "termine", "termini"]
+}
+
+CATEGORY_LABELS = {
+    "news": "📰 NEWS",
+    "contributi": "💶 CONTRIBUTI",
+    "incentivi": "🎯 INCENTIVI",
+    "bandi": "📋 BANDI",
+    "finanziamenti": "🏦 FINANZIAMENTI",
+    "gasolio": "⛽ GASOLIO",
+    "mezzi": "🚚 MEZZI",
+    "immobili": "🏗️ IMMOBILI",
+    "energia": "⚡ ENERGIA",
+    "normative": "⚖️ NORMATIVE",
+    "sardegna": "🏝️ SARDEGNA",
+    "scadenze": "⏰ SCADENZE"
+}
+
 IMPORTANT_WORDS = [
     "apertura",
     "aperto",
