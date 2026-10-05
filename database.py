@@ -20,18 +20,23 @@ def init_db():
         benefit TEXT,
         requirements TEXT,
         created_at TEXT,
-        notified INTEGER DEFAULT 0
+        notified INTEGER DEFAULT 0,
+        main_category TEXT DEFAULT "altro"
     )""")
+    try:
+        conn.execute('ALTER TABLE opportunities ADD COLUMN main_category TEXT DEFAULT "altro"')
+    except sqlite3.OperationalError:
+        pass
     conn.commit()
     conn.close()
 
-def add_opportunity(title,url,source,categories,score,published_date="",deadline="",status="DA_VERIFICARE",benefit="",requirements=""):
+def add_opportunity(title,url,source,categories,score,published_date="",deadline="",status="DA_VERIFICARE",benefit="",requirements="",main_category="altro"):
     conn=connect()
     try:
         conn.execute("""INSERT INTO opportunities
-        (title,url,source,categories,score,published_date,deadline,status,benefit,requirements,created_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
-        (title,url,source,",".join(categories),score,published_date,deadline,status,benefit,requirements,datetime.utcnow().isoformat()))
+        (title,url,source,categories,score,published_date,deadline,status,benefit,requirements,created_at,main_category)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (title,url,source,",".join(categories),score,published_date,deadline,status,benefit,requirements,datetime.utcnow().isoformat(),main_category))
         conn.commit()
         inserted=True
     except sqlite3.IntegrityError:
@@ -57,5 +62,12 @@ def get_latest(limit=20):
     conn=connect()
     rows=conn.execute("""SELECT title,url,source,categories,score,deadline,status,benefit
                          FROM opportunities ORDER BY id DESC LIMIT ?""",(limit,)).fetchall()
+    conn.close()
+    return rows
+
+def get_by_category(category, limit=20):
+    conn=connect()
+    rows=conn.execute("""SELECT title,url,source,categories,score,deadline,status,benefit
+                         FROM opportunities WHERE main_category=? ORDER BY id DESC LIMIT ?""",(category,limit)).fetchall()
     conn.close()
     return rows
