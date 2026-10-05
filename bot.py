@@ -1,7 +1,4 @@
 import os
-import threading
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
 from database import init_db, get_latest, get_unnotified
 from scanner import run_scan
 from alerts import send_unnotified
@@ -118,8 +115,8 @@ async def question(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as exc:
         print(f"AI error: {type(exc).__name__}: {exc}")
         await update.message.reply_text(
-            "⚠️ Non riesco a rispondere in questo momento. "
-            "Verifica che OPENAI_API_KEY sia configurata.")
+            "⚠️ Non riesco a completare la richiesta in questo momento. "
+            "Riprova tra poco.")
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -170,8 +167,6 @@ def main():
     if not TOKEN:
         raise RuntimeError("TELEGRAM_BOT_TOKEN non configurato.")
 
-    threading.Thread(target=start_health_server, daemon=True).start()
-
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("menu", menu))
@@ -182,7 +177,17 @@ def main():
     app.add_handler(CommandHandler("aggiorna", aggiorna))
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, question))
-    app.run_polling()
+    port = int(os.getenv("PORT", "10000"))
+    public_url = os.getenv("RENDER_EXTERNAL_URL", "https://autotrasporti-meloni-ai.onrender.com").rstrip("/")
+    webhook_url = f"{public_url}/telegram"
+    print(f"Starting Telegram webhook: {webhook_url}")
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        url_path="telegram",
+        webhook_url=webhook_url,
+        drop_pending_updates=False,
+    )
 
 if __name__ == "__main__":
     main()
