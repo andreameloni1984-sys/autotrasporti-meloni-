@@ -1,7 +1,7 @@
 SOURCES = [
-    {"name":"Regione Sardegna","url":"https://www.regione.sardegna.it/"},
-    {"name":"SardegnaImpresa","url":"https://www.sardegnaimpresa.eu/"},
-    {"name":"MIT","url":"https://www.mit.gov.it/"},
+    {"name":"Regione Sardegna","url":"https://www.regione.sardegna.it/","discovery_urls":["https://www.regione.sardegna.it/atti-bandi-archivi/atti-amministrativi/bandi/"]},
+    {"name":"SardegnaImpresa","url":"https://www.sardegnaimpresa.eu/","discovery_urls":["https://www.sardegnaimpresa.eu/it/agevolazioni"]},
+    {"name":"MIT","url":"https://www.mit.gov.it/","discovery_urls":["https://www.mit.gov.it/temi/trasporti/autotrasporto-merci/normativa"]},
     {"name":"RAM","url":"https://www.ramspa.it/"},
     {"name":"Agenzia Entrate","url":"https://www.agenziaentrate.gov.it/"},
     {"name":"ADM","url":"https://www.adm.gov.it/"},
