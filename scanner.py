@@ -2,7 +2,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
-from config import REQUEST_TIMEOUT
+from config import REQUEST_TIMEOUT, MAIN_CATEGORIES
 from filters import analyze
 from database import add_opportunity, init_db
 from sources import SOURCES
@@ -64,6 +64,11 @@ def _best_title(soup,fallback):
         if len(value)>=15: return value[:500]
     return fallback[:500]
 
+def _main_category(text):
+    low=(text or "").lower()
+    scores={k:sum(1 for term in terms if term in low) for k,terms in MAIN_CATEGORIES.items()}
+    return max(scores,key=scores.get) if scores and max(scores.values())>0 else "altro"
+
 def _scan_page(url,source_name,visited):
     if url in visited: return 0,[]
     visited.add(url)
@@ -81,7 +86,7 @@ def _scan_page(url,source_name,visited):
     result=analyze(f"{page_title} {page_text[:12000]}")
     inserted=0
     if result["relevant"]:
-        if add_opportunity(title=page_title,url=response.url,source=source_name,categories=result["categories"],score=result["score"],deadline=_extract_date(page_text),status=_extract_status(page_text),benefit=_extract_benefit(page_text),requirements=page_text[:1200]):
+        if add_opportunity(title=page_title,url=response.url,source=source_name,categories=result["categories"],score=result["score"],deadline=_extract_date(page_text),status=_extract_status(page_text),benefit=_extract_benefit(page_text),requirements=page_text[:1200],main_category=_main_category(f"{page_title} {page_text}")):
             inserted+=1
     return inserted,discovered
 
