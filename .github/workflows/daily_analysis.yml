@@ -9,7 +9,7 @@ jobs:
   daily-analysis:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -26,3 +26,11 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python daily_digest.py
+
+      - name: Salva confronto per il giorno successivo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/daily_seen.json
+          git diff --cached --quiet || git commit -m "Update daily analysis snapshot"
+          git push
